@@ -116,4 +116,11 @@ jobs:
 
           git add pubspec.yaml CHANGELOG.md
           git commit -m "chore: bump version to $NEW_VERSION+$NEW_BUILD and update changelog"
-          git push https://${{ secrets.GITEA_ACCESS_TOKEN }}@gitea.example.com/owner/repo.git master
+          
+          GITEA_URL="${{ secrets.GITEA_URL }}"
+          GITEA_REPO="mobiles/flutter-mobile.git"
+          FULL_REPO_URL="${GITEA_URL}/${GITEA_REPO}"
+
+          echo "Pushing to: $FULL_REPO_URL"
+
+          git push https://${{ secrets.GITEA_ACCESS_TOKEN }}@$FULL_REPO_URL master
