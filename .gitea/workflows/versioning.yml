@@ -108,30 +108,19 @@ jobs:
 
           mv "$TEMP_CHANGELOG" "$CHANGELOG_FILE"
 
-      - name: Commit and Push Changes
-        run: |
-          git config --global user.email "gitea-actions@bot.com"
-          git config --global user.name "Gitea Actions"
-          git checkout master  # S'assurer d'être sur la bonne branche
-
-          git add pubspec.yaml CHANGELOG.md
-          git commit -m "chore: bump version to $NEW_VERSION+$NEW_BUILD and update changelog"
-          
-          # Vérifier si les variables sont bien définies
-          if [ -z "${{ secrets.GITEAURL }}" ]; then
-            echo "❌ ERROR: GITEAURL is not set!"
-            exit 1
-          fi
-
-          if [ -z "${{ secrets.GITEAACCESSTOKEN }}" ]; then
-            echo "❌ ERROR: GITEAACCESSTOKEN is not set!"
-            exit 1
-          fi
-
-          GITEA_URL="${{ secrets.GITEAURL }}"
-          GITEA_REPO="mobiles/flutter-mobile.git"
-          FULL_REPO_URL="${GITEA_URL}/${GITEA_REPO}"
-
-          echo "🔗 Pushing to: $FULL_REPO_URL"
-
-          git push https://gitea.ethumada.com/mobiles/flutter-mobile.git master
+        - name: Set remote URL
+          run: |
+            git remote remove origin
+            git remote add origin https://${{ secrets.GITEAACCESSTOKEN }}@${{ secrets.GITEAURL#https:// }}/mobiles/flutter-mobile.git
+            git remote -v  # Vérifier que l'URL est correcte
+  
+        - name: Commit and Push Changes
+          run: |
+            git config --global user.email "gitea-actions@bot.com"
+            git config --global user.name "Gitea Actions"
+  
+            git add pubspec.yaml CHANGELOG.md
+            git commit -m "chore: bump version to $NEW_VERSION+$NEW_BUILD and update changelog" || echo "No changes to commit"
+  
+            echo "🔗 Pushing to remote repository..."
+            git push origin master
