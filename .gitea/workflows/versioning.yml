@@ -108,19 +108,19 @@ jobs:
 
           mv "$TEMP_CHANGELOG" "$CHANGELOG_FILE"
 
-        - name: Set remote URL
-          run: |
-            git remote remove origin
-            git remote add origin "https://${{ secrets.GITEAACCESSTOKEN }}@${{ secrets.GITEAURL#https:// }}/mobiles/flutter-mobile.git"
-            git remote -v  # Vérifier que l'URL est correcte
-  
-        - name: Commit and Push Changes
-          run: |
-            git config --global user.email "gitea-actions@bot.com"
-            git config --global user.name "Gitea Actions"
-  
-            git add pubspec.yaml CHANGELOG.md
-            git commit -m "chore: bump version to $NEW_VERSION+$NEW_BUILD and update changelog" || echo "No changes to commit"
-  
-            echo "🔗 Pushing to remote repository..."
-            git push origin master
+      - name: Set remote URL
+        run: |
+          git remote remove origin
+          git remote add origin https://${{ secrets.GITEAACCESSTOKEN }}@${{ secrets.GITEAURL#https:// }}/mobiles/flutter-mobile.git
+          git remote -v  # Vérifier que l'URL est correcte
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.email "gitea-actions@bot.com"
+          git config --global user.name "Gitea Actions"
+
+          git add pubspec.yaml CHANGELOG.md
+          git commit -m "chore: bump version to $NEW_VERSION+$NEW_BUILD and update changelog" || echo "No changes to commit"
+
+          echo "🔗 Pushing to remote repository..."
+          git push origin master
