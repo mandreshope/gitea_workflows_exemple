@@ -51,7 +51,8 @@ jobs:
             INCREMENT_TYPE="minor"
           elif echo "$COMMITS" | grep -iq "fix:"; then
             INCREMENT_TYPE="patch"
-
+          fi  # Fermeture correcte du if
+      
           echo "INCREMENT_TYPE=$INCREMENT_TYPE" >> "$GITHUB_ENV"
 
       - name: Increment version in pubspec.yaml
