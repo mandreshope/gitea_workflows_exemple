@@ -6,7 +6,6 @@ on:
       - merged  # Gitea utilise 'merged' et non 'closed'
     branches:
       - master
-sdfq
 jobs:
   versioning_and_changelog:
     runs-on: ubuntu-latest
