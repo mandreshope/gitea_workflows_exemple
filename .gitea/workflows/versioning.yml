@@ -134,4 +134,4 @@ jobs:
 
           echo "🔗 Pushing to: $FULL_REPO_URL"
 
-          git push https://${{ secrets.GITEAACCESSTOKEN }}@$FULL_REPO_URL master
+          git push https://gitea.ethumada.com/mobiles/flutter-mobile.git master
