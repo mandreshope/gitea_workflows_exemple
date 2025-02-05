@@ -26,7 +26,7 @@ jobs:
         id: get_commits
         run: |
           COMMITS=$(git log HEAD^..HEAD --oneline --no-merges)
-          echo "COMMITS=$COMMITS" >> "$GITHUB_ENV"
+          echo "COMMITS=$COMMITS" >> "$GITEA_ENV"
 
       - name: Extract current version from pubspec.yaml
         id: versioning
@@ -35,9 +35,9 @@ jobs:
           VERSION=$(echo "$CURRENT_VERSION" | cut -d'+' -f1)
           BUILD=$(echo "$CURRENT_VERSION" | cut -d'+' -f2)
 
-          echo "CURRENT_VERSION=$CURRENT_VERSION" >> "$GITHUB_ENV"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          echo "BUILD=$BUILD" >> "$GITHUB_ENV"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> "$GITEA_ENV"
+          echo "VERSION=$VERSION" >> "$GITEA_ENV"
+          echo "BUILD=$BUILD" >> "$GITEA_ENV"
 
       - name: Determine increment type
         id: increment_type
@@ -53,7 +53,7 @@ jobs:
             INCREMENT_TYPE="patch"
           fi  # Fermeture correcte du if
       
-          echo "INCREMENT_TYPE=$INCREMENT_TYPE" >> "$GITHUB_ENV"
+          echo "INCREMENT_TYPE=$INCREMENT_TYPE" >> "$GITEA_ENV"
 
       - name: Increment version in pubspec.yaml
         id: increment_version
@@ -80,8 +80,8 @@ jobs:
 
           sed -i "s/^version: .*/version: $NEW_VERSION+$NEW_BUILD/" pubspec.yaml
 
-          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
-          echo "NEW_BUILD=$NEW_BUILD" >> "$GITHUB_ENV"
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITEA_ENV"
+          echo "NEW_BUILD=$NEW_BUILD" >> "$GITEA_ENV"
 
       - name: Generate Changelog
         run: |
@@ -112,7 +112,8 @@ jobs:
         run: |
           git config --global user.email "gitea-actions@bot.com"
           git config --global user.name "Gitea Actions"
+          git checkout master  # S'assurer d'être sur la bonne branche
 
           git add pubspec.yaml CHANGELOG.md
-          git commit -m "chore bump version to $NEW_VERSION+$NEW_BUILD and update changelog"
+          git commit -m "chore: bump version to $NEW_VERSION+$NEW_BUILD and update changelog"
           git push https://${{ secrets.GITEA_ACCESS_TOKEN }}@gitea.example.com/owner/repo.git master
