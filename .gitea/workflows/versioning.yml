@@ -3,7 +3,7 @@ name: versioning-and-changelog
 on:
   pull_request:
     types:
-      - merged  # Gitea utilise 'merged' et non 'closed'
+      - closed  # Gitea utilise 'merged' et non 'closed'
     branches:
       - master
 jobs:
@@ -113,5 +113,5 @@ jobs:
           git config --global user.name "Gitea Actions"
 
           git add pubspec.yaml CHANGELOG.md
-          git commit -m "chore: bump version to $NEW_VERSION+$NEW_BUILD and update changelog"
+          git commit -m "chore bump version to $NEW_VERSION+$NEW_BUILD and update changelog"
           git push https://${{ secrets.GITEA_ACCESS_TOKEN }}@gitea.example.com/owner/repo.git master
