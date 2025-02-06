@@ -1,3 +1,23 @@
+## 0.1.1+6 (2025-02-06)
+
+### Breaking Changes
+No breaking changes found.
+
+### Features
+No features found.
+
+### Bug Fixes
+No bug fixes found.
+
+### Refactors
+No refactors found.
+
+### CI/CD
+No CI/CD changes found.
+
+### Other Changes
+- (#f6bc86e) chore: Fix workflows
+
 ## 0.1.0+5 (2025-02-06)
 
 ### Breaking Changes
