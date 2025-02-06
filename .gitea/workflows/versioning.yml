@@ -117,4 +117,4 @@ jobs:
           git commit -m "chore: bump version to $NEW_VERSION+$NEW_BUILD and update changelog" || echo "No changes to commit"
 
           echo "🔗 Pushing to remote repository..."
-          git push origin master
+          git push -u origin master
