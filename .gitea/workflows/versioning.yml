@@ -137,53 +137,37 @@ jobs:
         run: |
           CHANGELOG_FILE="CHANGELOG.md"
           DATE=$(date +"%Y-%m-%d")
-          COMMITS="${{ env.COMMITS }}"
-          echo "$COMMITS"
-          NEW_VERSION="${{ env.NEW_VERSION }}"
-          NEW_BUILD="${{ env.NEW_BUILD }}"
-
           if [ ! -f "$CHANGELOG_FILE" ]; then
-              touch "$CHANGELOG_FILE"
-              echo "# Changelog" > "$CHANGELOG_FILE"
+            touch "$CHANGELOG_FILE"
+            echo "# Changelog" > "$CHANGELOG_FILE"
           fi
-
           TEMP_CHANGELOG="CHANGELOG_TEMP.md"
           {
               echo "## $NEW_VERSION+$NEW_BUILD ($DATE)"
               echo ""
               echo "### Breaking Changes"
-              BREAKING=$(echo "$COMMITS" | grep "breaking:" | sed -E 's/^([a-f0-9]+) breaking: /- (#\1) /g')
-              echo "${BREAKING:-No breaking changes found.}"
+              echo "$COMMITS" | grep "breaking:" | sed -E 's/^([a-f0-9]+) breaking: /- (#\1) /g' || echo "No breaking changes found."
               echo ""
               echo "### Features"
-              FEATURES=$(echo "$COMMITS" | grep "feat:" | sed -E 's/^([a-f0-9]+) feat: /- (#\1) /g')
-              echo "${FEATURES:-No features found.}"
+              echo "$COMMITS" | grep "feat:" | sed -E 's/^([a-f0-9]+) feat: /- (#\1) /g' || echo "No features found."
               echo ""
               echo "### Bug Fixes"
-              BUG_FIXES=$(echo "$COMMITS" | grep "fix:" || true | sed -E 's/^([a-f0-9]+) fix: /- (#\1) /g')
-              echo "${BUG_FIXES:-No bug fixes found.}"
+              echo "$COMMITS" | grep "fix:" | sed -E 's/^([a-f0-9]+) fix: /- (#\1) /g' || echo "No bug fixes found."
               echo ""
               echo "### Refactors"
-              REFACTOR=$(echo "$COMMITS" | grep "refactor:" || true | sed -E 's/^([a-f0-9]+) refactor: /- (#\1) /g')
-              echo "${REFACTOR:-No refactors found.}"
+              echo "$COMMITS" | grep "refactor:" | sed -E 's/^([a-f0-9]+) refactor: /- (#\1) /g' || echo "No refactors found."
               echo ""
-              echo "### Style Changes"
-              STYLE=$(echo "$COMMITS" | grep "style:" || true | sed -E 's/^([a-f0-9]+) style: /- (#\1) /g')
-              echo "${STYLE:-No style changes found.}"
+              echo "### CI/CD"
+              echo "$COMMITS" | grep "ci:" | sed -E 's/^([a-f0-9]+) ci: /- (#\1) /g' || echo "No CI/CD changes found."
               echo ""
-              echo "### Chores"
-              CHORES=$(echo "$COMMITS" | grep "chore:" || true | sed -E 's/^([a-f0-9]+) chore: /- (#\1) /g')
-              echo "${CHORES:-No chores found.}"
-              echo ""
-              echo "### Miscellaneous"
-              MISC=$(echo "$COMMITS" | grep -v -E "breaking:|feat:|fix:|refactor:|style:|chore:" || true | sed -E 's/^([a-f0-9]+) /- (#\1) /g')
-              echo "${MISC:-No miscellaneous changes found.}"
+              echo "### Other Changes"
+              echo "$COMMITS" | grep -v -E "breaking:|feat:|fix:|refactor:|ci:" | sed -E 's/^([a-f0-9]+) /- (#\1) /g' || echo "No miscellaneous changes found."
               echo ""
               cat "$CHANGELOG_FILE"
           } > "$TEMP_CHANGELOG"
-
           mv "$TEMP_CHANGELOG" "$CHANGELOG_FILE"
           echo "Changelog updated."
+
 
       - name: Set remote URL
         run: |
