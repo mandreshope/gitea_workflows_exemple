@@ -140,7 +140,7 @@ jobs:
           NEW_VERSION="${{ env.NEW_VERSION }}"
           NEW_BUILD="${{ env.NEW_BUILD }}"
 
-          # Si le fichier changelog n'existe pas, on le crée avec un titre initial
+          # Créer le fichier changelog s'il n'existe pas
           if [ ! -f "$CHANGELOG_FILE" ]; then
               echo "# Changelog" > "$CHANGELOG_FILE"
           fi
@@ -149,33 +149,39 @@ jobs:
           {
               echo "## $NEW_VERSION+$NEW_BUILD ($DATE)"
               echo ""
+
               echo "### Breaking Changes"
-              # Ajout de "|| true" pour éviter une erreur si grep ne trouve rien
-              BREAKING=$(echo "$COMMITS" | grep "breaking:" || true | sed -E 's/^([a-f0-9]+) breaking: /- (#\1) /g')
+              BREAKING=$(echo "$COMMITS" | grep -i "breaking:" || true | sed -E 's/([a-f0-9]+)[[:space:]]+breaking:[[:space:]]+/- (#\1) /g')
               echo "${BREAKING:-No breaking changes found.}"
               echo ""
+
               echo "### Features"
-              FEATURES=$(echo "$COMMITS" | grep "feat:" || true | sed -E 's/^([a-f0-9]+) feat: /- (#\1) /g')
+              FEATURES=$(echo "$COMMITS" | grep -i "feat:" || true | sed -E 's/([a-f0-9]+)[[:space:]]+feat:[[:space:]]+/- (#\1) /g')
               echo "${FEATURES:-No features found.}"
               echo ""
+
               echo "### Bug Fixes"
-              BUG_FIXES=$(echo "$COMMITS" | grep "fix:" || true | sed -E 's/^([a-f0-9]+) fix: /- (#\1) /g')
+              BUG_FIXES=$(echo "$COMMITS" | grep -i "fix:" || true | sed -E 's/([a-f0-9]+)[[:space:]]+fix:[[:space:]]+/- (#\1) /g')
               echo "${BUG_FIXES:-No bug fixes found.}"
               echo ""
+
               echo "### Refactors"
-              REFACTOR=$(echo "$COMMITS" | grep "refactor:" || true | sed -E 's/^([a-f0-9]+) refactor: /- (#\1) /g')
+              REFACTOR=$(echo "$COMMITS" | grep -i "refactor:" || true | sed -E 's/([a-f0-9]+)[[:space:]]+refactor:[[:space:]]+/- (#\1) /g')
               echo "${REFACTOR:-No refactors found.}"
               echo ""
+
               echo "### Style Changes"
-              STYLE=$(echo "$COMMITS" | grep "style:" || true | sed -E 's/^([a-f0-9]+) style: /- (#\1) /g')
+              STYLE=$(echo "$COMMITS" | grep -i "style:" || true | sed -E 's/([a-f0-9]+)[[:space:]]+style:[[:space:]]+/- (#\1) /g')
               echo "${STYLE:-No style changes found.}"
               echo ""
+
               echo "### Chores"
-              CHORES=$(echo "$COMMITS" | grep "chore:" || true | sed -E 's/^([a-f0-9]+) chore: /- (#\1) /g')
+              CHORES=$(echo "$COMMITS" | grep -i "chore:" || true | sed -E 's/([a-f0-9]+)[[:space:]]+chore:[[:space:]]+/- (#\1) /g')
               echo "${CHORES:-No chores found.}"
               echo ""
+
               echo "### Miscellaneous"
-              MISC=$(echo "$COMMITS" | grep -v -E "breaking:|feat:|fix:|refactor:|style:|chore:" || true | sed -E 's/^([a-f0-9]+) /- (#\1) /g')
+              MISC=$(echo "$COMMITS" | grep -ivE "breaking:|feat:|fix:|refactor:|style:|chore:" || true | sed -E 's/([a-f0-9]+)[[:space:]]+/- (#\1) /g')
               echo "${MISC:-No miscellaneous changes found.}"
               echo ""
               cat "$CHANGELOG_FILE"
