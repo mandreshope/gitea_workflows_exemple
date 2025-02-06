@@ -1,3 +1,26 @@
+## 0.1.1+3 (2025-02-06)
+
+### Breaking Changes
+No breaking changes found.
+
+### Features
+No features found.
+
+### Bug Fixes
+No bug fixes found.
+
+### Refactors
+No refactors found.
+
+### Style
+No style found.
+
+### CI/CD
+No CI/CD changes found.
+
+### Other Changes
+- (#048ac29) chore: Update readme
+
 ## 0.1.0+2 (2025-02-06)
 
 ### Breaking Changes
