@@ -1,3 +1,26 @@
+## 0.0.5+6 (2025-02-06)
+
+### Breaking Changes
+No breaking changes found.
+
+### Features
+No features found.
+
+### Bug Fixes
+No bug fixes found.
+
+### Refactors
+No refactors found.
+
+### Style Changes
+No style changes found.
+
+### Chores
+No chores found.
+
+### Miscellaneous
+No miscellaneous changes found.
+
 ## 0.0.4+5 (2025-02-06)
 
 ### Breaking Changes
