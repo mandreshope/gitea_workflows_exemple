@@ -1,3 +1,26 @@
+## 0.0.3+4 (2025-02-06)
+
+### Breaking Changes
+No breaking changes found.
+
+### Features
+No features found.
+
+### Bug Fixes
+No bug fixes found.
+
+### Refactors
+No refactors found.
+
+### Style Changes
+6aa9b9a style: Remove comment;4af0730 chore: Fix changlog when multiline
+
+### Chores
+6aa9b9a style: Remove comment;4af0730 chore: Fix changlog when multiline
+
+### Miscellaneous
+No miscellaneous changes found.
+
 ## 0.0.2+3 (2025-02-06)
 
 ### Breaking Changes
