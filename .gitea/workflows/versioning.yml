@@ -27,25 +27,19 @@ jobs:
         id: get_commits
         run: |
           COMMITS=$(git log HEAD^..HEAD --oneline --no-merges)
-
           if [ -z "$COMMITS" ]; then
             echo "No commits found in the merged PR."
             exit 0
           fi
-
           echo "Commits from merged PR:"
           echo "$COMMITS"
-
-          # On utilise GITHUB_ENV pour exporter la variable
-          echo "COMMITS<<EOF" >> "$GITHUB_ENV"
-          echo "$COMMITS" >> "$GITHUB_ENV"
-          echo "EOF" >> "$GITHUB_ENV"
+          # On exporte la variable de façon simple
+          echo "COMMITS=$COMMITS" >> "$GITHUB_ENV"
 
       - name: Extract current version
         id: versioning
         run: |
           PUBSPEC_FILE="pubspec.yaml"
-
           if [ ! -f "$PUBSPEC_FILE" ]; then
             echo "Error: $PUBSPEC_FILE not found."
             exit 1
@@ -56,7 +50,6 @@ jobs:
           BUILD=$(echo "$CURRENT_VERSION" | cut -d'+' -f2)
 
           echo "Current version: $VERSION+$BUILD"
-
           echo "CURRENT_VERSION=$CURRENT_VERSION" >> "$GITHUB_ENV"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "BUILD=$BUILD" >> "$GITHUB_ENV"
@@ -64,6 +57,7 @@ jobs:
       - name: Determine increment type from commits
         id: increment_type
         run: |
+          # Récupère la variable exportée
           COMMITS="${{ env.COMMITS }}"
           INCREMENT_TYPE="patch"
 
@@ -80,9 +74,10 @@ jobs:
           elif echo "$COMMITS" | grep -iq "chore:"; then
             INCREMENT_TYPE="patch"
           else
-              INCREMENT_TYPE="patch"
+            INCREMENT_TYPE="patch"
           fi
 
+          echo "Determined increment type: $INCREMENT_TYPE"
           echo "INCREMENT_TYPE=$INCREMENT_TYPE" >> "$GITHUB_ENV"
 
       - name: Increment version and update pubspec.yaml
@@ -109,7 +104,6 @@ jobs:
           INCREMENT_TYPE="${{ env.INCREMENT_TYPE }}"
 
           NEW_BUILD=$((BUILD + 1))
-
           echo "Incrementing version using type: $INCREMENT_TYPE"
           echo "Old Version: $CURRENT_VERSION"
 
@@ -130,13 +124,17 @@ jobs:
           esac
 
           sed -i.bak "s/^version: .*/version: $NEW_VERSION+$NEW_BUILD/" pubspec.yaml
-
           echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
           echo "NEW_BUILD=$NEW_BUILD" >> "$GITHUB_ENV"
           echo "New Version: $NEW_VERSION+$NEW_BUILD"
 
       - name: Generate Changelog for merged PR
         run: |
+          # Ajout de messages de debug pour vérifier les variables
+          echo "DEBUG: Commits = [${{ env.COMMITS }}]"
+          echo "DEBUG: NEW_VERSION = [${{ env.NEW_VERSION }}]"
+          echo "DEBUG: NEW_BUILD = [${{ env.NEW_BUILD }}]"
+
           CHANGELOG_FILE="CHANGELOG.md"
           DATE=$(date +"%Y-%m-%d")
           COMMITS="${{ env.COMMITS }}"
@@ -144,7 +142,6 @@ jobs:
           NEW_BUILD="${{ env.NEW_BUILD }}"
 
           if [ ! -f "$CHANGELOG_FILE" ]; then
-              touch "$CHANGELOG_FILE"
               echo "# Changelog" > "$CHANGELOG_FILE"
           fi
 
@@ -201,5 +198,4 @@ jobs:
           git commit -m "chore: increment version $NEW_VERSION+$NEW_BUILD and update changelog" || echo "No changes to commit"
 
           echo "🔗 Pushing changes..."
-          # On pousse la branche courante (HEAD) vers master
           git push origin HEAD:master
