@@ -63,6 +63,7 @@ jobs:
         run: |
           # Récupère la variable exportée
           COMMITS="${{ env.COMMITS }}"
+          echo "$COMMITS"
           INCREMENT_TYPE="patch"
 
           if echo "$COMMITS" | grep -iq "breaking:"; then
@@ -137,6 +138,7 @@ jobs:
           CHANGELOG_FILE="CHANGELOG.md"
           DATE=$(date +"%Y-%m-%d")
           COMMITS="${{ env.COMMITS }}"
+          echo "$COMMITS"
           NEW_VERSION="${{ env.NEW_VERSION }}"
           NEW_BUILD="${{ env.NEW_BUILD }}"
 
