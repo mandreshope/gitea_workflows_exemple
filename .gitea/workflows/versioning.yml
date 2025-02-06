@@ -26,14 +26,15 @@ jobs:
       - name: Find commits from merged pull request
         id: get_commits
         run: |
-          COMMITS=$(git log HEAD^..HEAD --oneline --no-merges)
+          # Concatène les commits en une seule ligne, séparés par ";;"
+          COMMITS=$(git log HEAD^..HEAD --oneline --no-merges | paste -sd ";;" -)
           if [ -z "$COMMITS" ]; then
             echo "No commits found in the merged PR."
             exit 0
           fi
           echo "Commits from merged PR:"
           echo "$COMMITS"
-          # On exporte la variable de façon simple
+          # On exporte la variable en une seule ligne
           echo "COMMITS=$COMMITS" >> "$GITHUB_ENV"
 
       - name: Extract current version
@@ -130,13 +131,13 @@ jobs:
 
       - name: Generate Changelog for merged PR
         run: |
-          echo "DEBUG: Commits = [${{ env.COMMITS }}]"
-          echo "DEBUG: NEW_VERSION = [${{ env.NEW_VERSION }}]"
-          echo "DEBUG: NEW_BUILD = [${{ env.NEW_BUILD }}]"
-
+          echo "DEBUG: Raw COMMITS = [${{ env.COMMITS }}]"
+          # Reconstruire la liste des commits en remplaçant ";;" par des retours à la ligne
+          COMMITS=$(echo "${{ env.COMMITS }}" | sed 's/;;/\n/g')
+          echo "DEBUG: COMMITS after conversion = [$COMMITS]"
+          
           CHANGELOG_FILE="CHANGELOG.md"
           DATE=$(date +"%Y-%m-%d")
-          COMMITS="${{ env.COMMITS }}"
           NEW_VERSION="${{ env.NEW_VERSION }}"
           NEW_BUILD="${{ env.NEW_BUILD }}"
 
@@ -185,7 +186,6 @@ jobs:
               echo "${MISC:-No miscellaneous changes found.}"
               echo ""
               
-              # On conserve l'ancien contenu du changelog en bas
               cat "$CHANGELOG_FILE"
           } > "$TEMP_CHANGELOG"
 
