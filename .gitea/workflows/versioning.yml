@@ -3,9 +3,10 @@ name: versioning-and-changelog
 on:
   pull_request:
     types:
-      - closed  # Gitea utilise 'merged' et non 'closed'
+      - closed
     branches:
       - master
+
 jobs:
   versioning_and_changelog:
     runs-on: ubuntu-latest
@@ -35,6 +36,7 @@ jobs:
           echo "Commits from merged PR:"
           echo "$COMMITS"
 
+          # On utilise GITHUB_ENV pour exporter la variable
           echo "COMMITS<<EOF" >> "$GITHUB_ENV"
           echo "$COMMITS" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
@@ -49,7 +51,7 @@ jobs:
             exit 1
           fi
 
-          CURRENT_VERSION=$(grep 'version:' $PUBSPEC_FILE | awk -F ': ' '{print $2}')
+          CURRENT_VERSION=$(grep 'version:' "$PUBSPEC_FILE" | awk -F ': ' '{print $2}')
           VERSION=$(echo "$CURRENT_VERSION" | cut -d'+' -f1)
           BUILD=$(echo "$CURRENT_VERSION" | cut -d'+' -f2)
 
@@ -189,15 +191,15 @@ jobs:
           # Remplacer (ou mettre à jour) l'origin avec l'URL incluant le token
           git remote set-url origin https://${{ secrets.GITEAACCESSTOKEN }}@${{ secrets.GITEAURL#https:// }}/mobiles/flutter-mobile.git
           git remote -v
-        
+
       - name: Commit and Push Changes
         run: |
           git config --global user.email "gitea-actions@bot.com"
           git config --global user.name "Gitea Actions"
-      
+
           git add pubspec.yaml CHANGELOG.md
-          git commit -m "chore: increment version $NEW_VERSION+$NEW_BUILD and update changelog"
-      
+          git commit -m "chore: increment version $NEW_VERSION+$NEW_BUILD and update changelog" || echo "No changes to commit"
+
           echo "🔗 Pushing changes..."
-          # Ici, on pousse la branche courante (HEAD) vers la branche master sur l'origine
+          # On pousse la branche courante (HEAD) vers master
           git push origin HEAD:master
