@@ -26,15 +26,14 @@ jobs:
       - name: Find commits from merged pull request
         id: get_commits
         run: |
-          # Concatène les commits en une seule ligne, séparés par ";;"
-          COMMITS=$(git log HEAD^..HEAD --oneline --no-merges | paste -sd ";;" -)
+          # Concatène les commits sur une seule ligne avec "|||" comme séparateur
+          COMMITS=$(git log HEAD^..HEAD --oneline --no-merges | paste -sd "|||" -)
           if [ -z "$COMMITS" ]; then
             echo "No commits found in the merged PR."
             exit 0
           fi
           echo "Commits from merged PR:"
           echo "$COMMITS"
-          # On exporte la variable en une seule ligne
           echo "COMMITS=$COMMITS" >> "$GITHUB_ENV"
 
       - name: Extract current version
@@ -132,16 +131,16 @@ jobs:
       - name: Generate Changelog for merged PR
         run: |
           echo "DEBUG: Raw COMMITS = [${{ env.COMMITS }}]"
-          # Reconstruire la liste des commits en remplaçant ";;" par des retours à la ligne
-          COMMITS=$(echo "${{ env.COMMITS }}" | sed 's/;;/\n/g')
+          # Reconstruit la liste multi-lignes en remplaçant "|||" par un retour à la ligne
+          COMMITS=$(echo "${{ env.COMMITS }}" | sed 's/|||/\n/g')
           echo "DEBUG: COMMITS after conversion = [$COMMITS]"
-          
+
           CHANGELOG_FILE="CHANGELOG.md"
           DATE=$(date +"%Y-%m-%d")
           NEW_VERSION="${{ env.NEW_VERSION }}"
           NEW_BUILD="${{ env.NEW_BUILD }}"
 
-          # Créer le fichier changelog s'il n'existe pas
+          # Crée le fichier changelog s'il n'existe pas
           if [ ! -f "$CHANGELOG_FILE" ]; then
               echo "# Changelog" > "$CHANGELOG_FILE"
           fi
@@ -150,42 +149,43 @@ jobs:
           {
               echo "## $NEW_VERSION+$NEW_BUILD ($DATE)"
               echo ""
-              
+
               echo "### Breaking Changes"
               BREAKING=$(echo "$COMMITS" | grep -i "breaking:" || true | sed -E 's/^[[:space:]]*([a-f0-9]+)[[:space:]]+breaking:[[:space:]]+/- (#\1) /g')
               echo "${BREAKING:-No breaking changes found.}"
               echo ""
-              
+
               echo "### Features"
               FEATURES=$(echo "$COMMITS" | grep -i "feat:" || true | sed -E 's/^[[:space:]]*([a-f0-9]+)[[:space:]]+feat:[[:space:]]+/- (#\1) /g')
               echo "${FEATURES:-No features found.}"
               echo ""
-              
+
               echo "### Bug Fixes"
               BUG_FIXES=$(echo "$COMMITS" | grep -i "fix:" || true | sed -E 's/^[[:space:]]*([a-f0-9]+)[[:space:]]+fix:[[:space:]]+/- (#\1) /g')
               echo "${BUG_FIXES:-No bug fixes found.}"
               echo ""
-              
+
               echo "### Refactors"
               REFACTOR=$(echo "$COMMITS" | grep -i "refactor:" || true | sed -E 's/^[[:space:]]*([a-f0-9]+)[[:space:]]+refactor:[[:space:]]+/- (#\1) /g')
               echo "${REFACTOR:-No refactors found.}"
               echo ""
-              
+
               echo "### Style Changes"
               STYLE=$(echo "$COMMITS" | grep -i "style:" || true | sed -E 's/^[[:space:]]*([a-f0-9]+)[[:space:]]+style:[[:space:]]+/- (#\1) /g')
               echo "${STYLE:-No style changes found.}"
               echo ""
-              
+
               echo "### Chores"
               CHORES=$(echo "$COMMITS" | grep -i "chore:" || true | sed -E 's/^[[:space:]]*([a-f0-9]+)[[:space:]]+chore:[[:space:]]+/- (#\1) /g')
               echo "${CHORES:-No chores found.}"
               echo ""
-              
+
               echo "### Miscellaneous"
               MISC=$(echo "$COMMITS" | grep -ivE "breaking:|feat:|fix:|refactor:|style:|chore:" || true | sed -E 's/^[[:space:]]*([a-f0-9]+)[[:space:]]+/- (#\1) /g')
               echo "${MISC:-No miscellaneous changes found.}"
               echo ""
               
+              # On conserve l'ancien contenu du changelog en bas
               cat "$CHANGELOG_FILE"
           } > "$TEMP_CHANGELOG"
 
